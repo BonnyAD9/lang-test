@@ -89,7 +89,14 @@ static void extend(Primap *pm, size_t old) {
     size_t i = old * 64;
     if (old == 0) {
         *pm->map = FIRST64;
-        i = SIZE_WIDTH > 64 ? 64 : SIZE_WIDTH;
+        if (SIZE_WIDTH > 64) {
+            i = 64;
+        } else {
+            i = SIZE_WIDTH;
+            if (pm->len == 1) {
+                return;
+            }
+        }
     }
 
     auto lim = pm->len * SIZE_WIDTH;
