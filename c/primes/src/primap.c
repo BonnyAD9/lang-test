@@ -124,9 +124,13 @@ static void extend(Primap *pm, size_t old) {
             continue;
         }
         
+        auto k = (i * i + i) * 2;
         auto i2 = i * 2 + 1;
+        if (k >= lim) {
+            return;
+        }
 
-        for (auto k = (i * i + i) * 2; k < lim; k += i2) {
+        for (; k < lim; k += i2) {
             auto idx = k / SIZE_WIDTH;
             auto mask = (size_t)1 << (k % SIZE_WIDTH);
             pm->map[idx] &= ~mask;
