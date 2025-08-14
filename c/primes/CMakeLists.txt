@@ -12,7 +12,7 @@ file(GLOB primes_files CONFIGURE_DEPENDS "src/**/*.c" "src/*.c")
 target_sources(primes PRIVATE ${primes_files})
 
 # Uncomment to add link library
-# target_link_libraries(primes PRIVATE #[[ link library here (-lm) ]])
+target_link_libraries(primes PRIVATE -lm)
 
 if(CMAKE_BUILD_TYPE STREQUAL "Debug")
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -Wextra -Werror -fsanitize=address")

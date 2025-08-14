@@ -1,5 +1,6 @@
 #include "primap.h"
 
+#include <math.h>
 #include <stdbit.h>
 #include <stdint.h>
 #include <stdio.h>
@@ -46,7 +47,9 @@ void pm_delete(Primap *pm) {
 }
 
 size_t pm_nth(Primap *pm, size_t n) {
-    // TODO: fast precalculation
+    // Fast precalculation
+    pm_is_prime(pm, n * (size_t)log(n));
+    
     size_t i = 0;
 
     for (size_t c = 0; c < n; ++i) {
