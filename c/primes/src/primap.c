@@ -91,7 +91,8 @@ static void extend(Primap *pm, size_t old) {
 
     auto lim = pm->len * SIZE_WIDTH;
 
-    for (size_t j = 1; j < i; ++j) {
+    size_t j = 1;
+    for (; j < i; ++j) {
         auto idx = j / SIZE_WIDTH;
         auto mask = (size_t)1 << (j % SIZE_WIDTH);
         if ((pm->map[idx] & mask) == 0) {
@@ -100,14 +101,16 @@ static void extend(Primap *pm, size_t old) {
 
         auto k = (j * j + j) * 2;
         auto j2 = j * 2 + 1;
-        if (k < i) {
-            auto i2 = i * 2;
-            k = i2 + j2 - i2 % j2;
-            if (k % 2 == 0) {
-                k += j2;
-            }
-            k /= 2;
+        if (k >= i) {
+            break;
         }
+        
+        auto i2 = i * 2;
+        k = i2 + j2 - i2 % j2;
+        if (k % 2 == 0) {
+            k += j2;
+        }
+        k /= 2;
 
         for (; k < lim; k += j2) {
             auto idx = k / SIZE_WIDTH;
@@ -117,7 +120,7 @@ static void extend(Primap *pm, size_t old) {
         }
     }
 
-    for (; i < lim; ++i) {
+    for (i = j; i < lim; ++i) {
         auto idx = i / SIZE_WIDTH;
         auto mask = (size_t)1 << (i % SIZE_WIDTH);
         if ((pm->map[idx] & mask) == 0) {
