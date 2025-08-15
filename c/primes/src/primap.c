@@ -6,6 +6,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include "err.h"
 
 static bool resize(Primap *pm, size_t n);
 static void extend(Primap *pm, size_t old);
@@ -72,6 +73,7 @@ static bool resize(Primap *pm, size_t n) {
 
     auto new_map = (size_t *)realloc(pm->map, new_len * sizeof(*pm->map));
     if (!new_map) {
+        err_c(STR("Failed to resize primap."));
         return false;
     }
 
