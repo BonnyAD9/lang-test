@@ -50,6 +50,9 @@ void pm_delete(Primap *pm) {
 }
 
 size_t pm_nth(Primap *pm, size_t n) {
+    if (n == 0) {
+        return 2;
+    }
     // Fast precalculation
     pm_is_prime(pm, n * (size_t)ceil(log((double)n)));
 

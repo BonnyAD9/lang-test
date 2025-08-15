@@ -12,8 +12,10 @@ static Args arg_err();
 
 Args arg_parse(char **args) {
     Args res = {
-        .mode = MODE_COUNT,
-        .num = 0,
+        .start = 0,
+        .end = 0,
+        .mode = MODE_DEFAULT,
+        .ranged = false,
     };
 
     bool num_set = false;
@@ -26,8 +28,23 @@ Args arg_parse(char **args) {
             res.mode = MODE_HELP;
         } else if (str_eq(&arg, &STR("-n")) || str_eq(&arg, &STR("--nth"))) {
             res.mode = MODE_NTH;
+        } else if (str_eq(&arg, &STR("-c")) || str_eq(&arg, &STR("--count"))) {
+            res.mode = MODE_COUNT;
+        } else if (str_eq(&arg, &STR("-r")) || str_eq(&arg, &STR("--range"))) {
+            res.ranged = true;
+        } else if (str_eq(&arg, &STR("-s")) || str_eq(&arg, &STR("--from"))) {
+            res.ranged = true;
+            if (!*++args) {
+                err(str_fmt("Expected integer after `%s`.", arg.str));
+                return arg_err();
+            }
+            auto next = str_borrow_c(*args);
+            res.start = parse_size(&next);
+            if (err_any()) {
+                return arg_err();
+            }
         } else {
-            res.num = parse_size(&arg);
+            res.end = parse_size(&arg);
             if (err_any()) {
                 return arg_err();
             }
@@ -37,6 +54,11 @@ Args arg_parse(char **args) {
 
     if (!num_set && res.mode != MODE_HELP) {
         err(STR("Missing number argument."));
+        return arg_err();
+    }
+
+    if (res.start > res.end) {
+        err(STR("Expected start of range to be smaller than the end."));
         return arg_err();
     }
 

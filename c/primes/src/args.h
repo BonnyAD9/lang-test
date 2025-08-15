@@ -6,13 +6,16 @@
 typedef enum {
     MODE_ERROR,
     MODE_HELP,
+    MODE_DEFAULT,
     MODE_COUNT,
     MODE_NTH,
 } Mode;
 
 typedef struct {
+    size_t start;
+    size_t end;
     Mode mode;
-    size_t num;
+    bool ranged;
 } Args;
 
 Args arg_parse(char **args);
