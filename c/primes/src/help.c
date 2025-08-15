@@ -4,7 +4,7 @@
 
 #include "term.h"
 
-static const char *HELP_TEXT =
+static const char *help_text =
     "Welcome in help for " T_ITALIC T_GREEN "C primes" T_RESET " by BonnyAD9."
     "\n\n" T_GREEN "Usage:\n" T_CYAN "  primes " T_YELLOW "-h\n" T_RESET
     "    Print this help.\n"
@@ -14,8 +14,10 @@ static const char *HELP_TEXT =
     "\n" T_CYAN "  primes " T_DGRAY "[" T_DYELLOW "flags" T_DGRAY "] " T_WHITE
     "<N>" T_RESET "\n    Do prime stuff with N based on the flags.\n"
     "\n" T_GREEN "Flags:\n" T_YELLOW "  -h  -?  --help\n" T_RESET
-    "    Print this help and exit.\n";
+    "    Print this help and exit.\n"
+    "\n" T_YELLOW "  -n  --nth\n" T_RESET
+    "    Calculate the Nth prime instead of checking if N is prime.\n";
 
 void help() {
-    printf("%s", HELP_TEXT);
+    printf("%s", help_text);
 }

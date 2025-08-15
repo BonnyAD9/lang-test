@@ -33,7 +33,7 @@ cppcheck:
 
 .PHONY: tidy
 tidy: debug
-	run-clang-tidy $(PARALLEL) -use-color -quiet -p $(BUILD_FOLDER) \
+	run-clang-tidy $(PARALLEL) -use-color -quiet -p target/Debug \
 		-header-filter=src/ 'src/.*\.c' 'src/.*\.h'
 
 .PHONY: check

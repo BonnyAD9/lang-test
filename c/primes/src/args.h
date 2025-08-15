@@ -4,9 +4,10 @@
 #include <stddef.h>
 
 typedef enum {
-    MODE_COUNT,
-    MODE_HELP,
     MODE_ERROR,
+    MODE_HELP,
+    MODE_COUNT,
+    MODE_NTH,
 } Mode;
 
 typedef struct {

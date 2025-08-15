@@ -7,8 +7,9 @@
 #include "help.h"
 #include "primap.h"
 
-static bool count(Args *args);
 static void start(Args *args);
+static bool count(Args *args);
+static bool nth(Args *args);
 
 int main(int, char **argv) {
     auto ar = arg_parse(argv);
@@ -21,13 +22,16 @@ int main(int, char **argv) {
 
 static void start(Args *args) {
     switch (args->mode) {
-    case MODE_COUNT:
-        count(args);
+    case MODE_ERROR:
         break;
     case MODE_HELP:
         help();
         break;
-    case MODE_ERROR:
+    case MODE_COUNT:
+        count(args);
+        break;
+    case MODE_NTH:
+        nth(args);
         break;
     }
 }
@@ -50,5 +54,17 @@ static bool count(Args *args) {
         break;
     }
 
+    return true;
+}
+
+static bool nth(Args *args) {
+    auto pm = pm_new();
+    auto res = pm_nth(&pm, args->num);
+    pm_delete(&pm);
+    if (res == 0) {
+        return false;
+    }
+
+    printf("%zu\n", res);
     return true;
 }

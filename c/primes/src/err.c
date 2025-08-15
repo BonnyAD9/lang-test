@@ -30,10 +30,12 @@ void err_c(Str msg) {
     }
     guard = true;
 
-    auto err_msg = str_borrow_c(strerror(code));
+    char buf[256];
+    auto res = strerror_r(code, buf, sizeof(buf));
+    auto err_msg = str_borrow_c(buf);
 
     if (msg.len == 0) {
-        if (!str_to_owned(&err_msg)) {
+        if (res != 0 || !str_to_owned(&err_msg)) {
             err(STR("Failed to generate error message."));
             guard = false;
             return;
@@ -43,7 +45,7 @@ void err_c(Str msg) {
         return;
     }
 
-    if (!str_reserve(&msg, msg.len + err_msg.len + 2)) {
+    if (res != 0 || !str_reserve(&msg, msg.len + err_msg.len + 2)) {
         err(msg);
         guard = false;
         return;

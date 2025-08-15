@@ -24,6 +24,8 @@ Args arg_parse(char **args) {
         if (str_eq(&arg, &STR("-h")) || str_eq(&arg, &STR("-?")) ||
             str_eq(&arg, &STR("--help"))) {
             res.mode = MODE_HELP;
+        } else if (str_eq(&arg, &STR("-n")) || str_eq(&arg, &STR("--nth"))) {
+            res.mode = MODE_NTH;
         } else {
             res.num = parse_size(&arg);
             if (err_any()) {
