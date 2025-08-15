@@ -1,19 +1,21 @@
 #include "primap.h"
 
+#include <assert.h>
 #include <math.h>
 #include <stdbit.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+
 #include "err.h"
 
 static bool resize(Primap *pm, size_t n);
 static void extend(Primap *pm, size_t old);
 
-constexpr size_t FIRST64 =
+constexpr static size_t FIRST64 =
     //  12   11   10    9    8    7    6    5    4    3    2    1    0
-    //7531975319753197531975319753197531975319753197531975319753197531
+    // 7531975319753197531975319753197531975319753197531975319753197531
     0b1000000101101101000100101001101001100100101101001100101101101110;
 
 Primap pm_new() {
@@ -49,8 +51,8 @@ void pm_delete(Primap *pm) {
 
 size_t pm_nth(Primap *pm, size_t n) {
     // Fast precalculation
-    pm_is_prime(pm, n * (size_t)log(n));
-    
+    pm_is_prime(pm, n * (size_t)ceil(log((double)n)));
+
     size_t i = 0;
 
     for (size_t c = 0; c < n; ++i) {
@@ -61,6 +63,9 @@ size_t pm_nth(Primap *pm, size_t n) {
             break;
         case 1:
             ++c;
+            break;
+        default:
+            assert(false);
             break;
         }
     }
@@ -81,7 +86,9 @@ static bool resize(Primap *pm, size_t n) {
     pm->len = new_len;
     pm->map = new_map;
 
-    memset(pm->map + old_len, 0xFF, (new_len - old_len) * sizeof(*pm->map));
+    memset(
+        pm->map + old_len, UINT8_MAX, (new_len - old_len) * sizeof(*pm->map)
+    );
 
     extend(pm, old_len);
     return true;
@@ -91,6 +98,7 @@ static void extend(Primap *pm, size_t old) {
     size_t i = old * 64;
     if (old == 0) {
         *pm->map = FIRST64;
+        // NOLINTNEXTLINE(misc-redundant-expression)
         if (SIZE_WIDTH > 64) {
             i = 64;
         } else {
@@ -116,7 +124,7 @@ static void extend(Primap *pm, size_t old) {
         if (k >= i) {
             break;
         }
-        
+
         auto i2 = i * 2;
         k = i2 + j2 - i2 % j2;
         if (k % 2 == 0) {
@@ -138,7 +146,7 @@ static void extend(Primap *pm, size_t old) {
         if ((pm->map[idx] & mask) == 0) {
             continue;
         }
-        
+
         auto k = (i * i + i) * 2;
         auto i2 = i * 2 + 1;
         if (k >= lim) {

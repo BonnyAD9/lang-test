@@ -10,7 +10,7 @@ typedef struct {
     size_t capacity;
 } Str;
 
-#define STR(lit) ((Str) { .str = (lit), .len = sizeof(lit) - 1, .capacity = 0 })
+#define STR(lit) ((Str){ .str = (lit), .len = sizeof(lit) - 1, .capacity = 0 })
 
 Str str_fmt(const char *fmt, ...);
 
@@ -23,7 +23,7 @@ size_t str_pop_n(Str *s, size_t n);
 bool str_push(Str *s, const Str *ext);
 
 static inline Str str_empty() {
-    return (Str) {
+    return (Str){
         .str = "",
         .len = 0,
         .capacity = 0,
@@ -31,7 +31,7 @@ static inline Str str_empty() {
 }
 
 static inline Str str_none() {
-    return (Str) {
+    return (Str){
         .str = nullptr,
         .len = 0,
         .capacity = 0,
@@ -39,7 +39,7 @@ static inline Str str_none() {
 }
 
 static inline Str str_borrow_c(const char *s) {
-    return (Str) {
+    return (Str){
         .str = (char *)s,
         .len = strlen(s),
         .capacity = 0,
@@ -55,7 +55,8 @@ static inline bool str_is_none(const Str *s) {
 }
 
 static inline bool str_ends_with(const Str *s, const Str *e) {
-    return e->len <= s->len && memcmp(s->str + s->len - e->len, e->str, e->len) == 0;
+    return e->len <= s->len &&
+           memcmp(s->str + s->len - e->len, e->str, e->len) == 0;
 }
 
 static inline bool str_eq(const Str *a, const Str *b) {

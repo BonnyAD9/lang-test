@@ -1,3 +1,4 @@
+#include <assert.h>
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -44,7 +45,10 @@ static bool count(Args *args) {
     case 1:
         printf("1\n");
         break;
+    default:
+        assert(false);
+        break;
     }
-    
+
     return true;
 }
