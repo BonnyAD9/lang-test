@@ -37,7 +37,7 @@ int pm_is_prime(Primap *pm, size_t n) {
         return (pm->map[idx] & mask) == mask;
     }
 
-    if (!resize(pm, idx + 1)) {
+    if (!resize(pm, stdc_bit_ceil(idx + 1))) {
         return -1;
     }
 
@@ -76,22 +76,26 @@ size_t pm_nth(Primap *pm, size_t n) {
     return i - 1;
 }
 
-static bool resize(Primap *pm, size_t n) {
-    const auto new_len = stdc_bit_ceil(n);
+bool pm_precalc(Primap *pm, size_t n) {
+    auto size = n / 2 / SIZE_WIDTH;
+    if (size > pm->len) {
+        return resize(pm, size + 1);
+    }
+    return true;
+}
 
-    auto new_map = (size_t *)realloc(pm->map, new_len * sizeof(*pm->map));
+static bool resize(Primap *pm, size_t n) {
+    auto new_map = (size_t *)realloc(pm->map, n * sizeof(*pm->map));
     if (!new_map) {
         err_c(STR("Failed to resize primap."));
         return false;
     }
 
     auto old_len = pm->len;
-    pm->len = new_len;
+    pm->len = n;
     pm->map = new_map;
 
-    memset(
-        pm->map + old_len, UINT8_MAX, (new_len - old_len) * sizeof(*pm->map)
-    );
+    memset(pm->map + old_len, UINT8_MAX, (n - old_len) * sizeof(*pm->map));
 
     extend(pm, old_len);
     return true;

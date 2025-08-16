@@ -18,4 +18,6 @@ void pm_delete(Primap *pm);
 
 size_t pm_nth(Primap *pm, size_t n);
 
+bool pm_precalc(Primap *pm, size_t n);
+
 #endif // PRIMAP_H_INCLUDED

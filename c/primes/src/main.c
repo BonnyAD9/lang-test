@@ -1,4 +1,5 @@
 #include <assert.h>
+#include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -11,6 +12,10 @@ static void start(Args *args);
 static bool m_default(Args *args);
 static bool count(Args *args);
 static bool nth(Args *args);
+static int (*fast_is_prime_for(size_t start, size_t end))(
+    Primap *pm, size_t n
+);
+static int is_prime(size_t num);
 
 int main(int, char **argv) {
     auto ar = arg_parse(argv);
@@ -41,22 +46,11 @@ static void start(Args *args) {
 }
 
 static bool m_default(Args *args) {
-    auto pm = pm_new();
     if (!args->ranged) {
-        auto res = pm_is_prime(&pm, args->end);
-        pm_delete(&pm);
-        switch (res) {
-        case -1:
-            return false;
-        case 0:
-            printf("%zu is not prime\n", args->end);
-            break;
-        case 1:
+        if (is_prime(args->end)) {
             printf("%zu is prime\n", args->end);
-            break;
-        default:
-            assert(false);
-            break;
+        } else {
+            printf("%zu is not prime\n", args->end);
         }
 
         return true;
@@ -66,8 +60,16 @@ static bool m_default(Args *args) {
         printf("2\n");
     }
 
+    auto pm = pm_new();
+    auto is = fast_is_prime_for(args->start, args->end);
+
+    if (is == pm_is_prime && !pm_precalc(&pm, args->end - 1)) {
+        pm_delete(&pm);
+        return false;
+    }
+
     for (size_t i = args->start | 1; i < args->end; i += 2) {
-        switch (pm_is_prime(&pm, i)) {
+        switch (is(&pm, i)) {
         case -1:
             pm_delete(&pm);
             return false;
@@ -85,34 +87,24 @@ static bool m_default(Args *args) {
 }
 
 static bool count(Args *args) {
-    auto pm = pm_new();
     if (!args->ranged) {
-        auto res = pm_is_prime(&pm, args->end);
-        pm_delete(&pm);
-        switch (res) {
-        case -1:
-            return false;
-        case 0:
-            printf("0\n");
-            break;
-        case 1:
+        if (is_prime(args->end)) {
             printf("1\n");
-            break;
-        default:
-            assert(false);
-            break;
+        } else {
+            printf("0\n");
         }
-
         return true;
     }
 
     if (args->end == args->start) {
         printf("0\n");
-        pm_delete(&pm);
         return true;
     }
 
-    if (pm_is_prime(&pm, args->end - 1) == -1) {
+    auto pm = pm_new();
+    auto is = fast_is_prime_for(args->start, args->end);
+
+    if (is == pm_is_prime && !pm_precalc(&pm, args->end - 1)) {
         pm_delete(&pm);
         return false;
     }
@@ -120,7 +112,7 @@ static bool count(Args *args) {
     size_t cnt = 0;
 
     for (size_t i = args->start | 1; i < args->end; i += 2) {
-        cnt += pm_is_prime(&pm, i);
+        cnt += is(&pm, i);
     }
 
     pm_delete(&pm);
@@ -171,6 +163,47 @@ static bool nth(Args *args) {
     }
 
     pm_delete(&pm);
+
+    return true;
+}
+
+static int naive_is_prime(Primap *, size_t n) {
+    return is_prime(n);
+}
+
+static int (*fast_is_prime_for(size_t start, size_t end))(
+    Primap *pm, size_t n
+) {
+    constexpr double NAIVE_MULT = 0.2;
+    auto sieve = (double)end * log((double)end);
+    auto naive = (double)(end - start) * sqrt((double)end) * NAIVE_MULT;
+    if (naive < sieve) {
+        return naive_is_prime;
+    }
+    return pm_is_prime;
+}
+
+static int is_prime(size_t n) {
+    if (n <= 1) {
+        return false;
+    }
+
+    if (n == 2 || n == 3) {
+        return true;
+    }
+
+    if (n % 2 == 0 || n % 3 == 0) {
+        return false;
+    }
+
+    auto lim = (size_t)ceil(sqrt((double)n));
+
+    // NOLINTNEXTLINE(readability-magic-numbers)
+    for (size_t i = 5; i <= lim; i += 6) {
+        if (n % i == 0 || n % (i + 2) == 0) {
+            return false;
+        }
+    }
 
     return true;
 }
