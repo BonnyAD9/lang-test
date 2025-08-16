@@ -18,7 +18,7 @@ static int (*fast_is_prime_for(size_t start, size_t end))(
 static int is_prime(size_t num);
 
 int main(int, char **argv) {
-    auto ar = arg_parse(argv);
+    auto ar = arg_parse((const char *const *)argv);
     start(&ar);
     if (err_any()) {
         err_print();

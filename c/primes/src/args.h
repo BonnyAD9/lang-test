@@ -3,6 +3,7 @@
 
 #include <stddef.h>
 
+/// What should be done. Mode of operation of the program.
 typedef enum {
     MODE_ERROR,
     MODE_HELP,
@@ -11,6 +12,7 @@ typedef enum {
     MODE_NTH,
 } Mode;
 
+/// Parsed command line arguments.
 typedef struct {
     size_t start;
     size_t end;
@@ -18,8 +20,10 @@ typedef struct {
     bool ranged;
 } Args;
 
-Args arg_parse(char **args);
-
-void arg_perror(Args *args);
+/// @brief Parse the command line arguments.
+/// @param[in] args Command line arguments (`argv`).
+/// @returns Parsed arguments. On error mode is [`MODE_ERROR`] and error stack
+/// has set the error.
+Args arg_parse(const char *const *args);
 
 #endif // ARGS_H_INCLUDED

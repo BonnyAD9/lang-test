@@ -10,7 +10,7 @@
 static size_t parse_size(const Str *s);
 static Args arg_err();
 
-Args arg_parse(char **args) {
+Args arg_parse(const char *const *args) {
     Args res = {
         .start = 0,
         .end = 0,
