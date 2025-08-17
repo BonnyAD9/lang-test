@@ -98,7 +98,7 @@ void err_c_code(Str msg, int code) {
 
 Str err_pop() {
     auto res = errs.msg;
-    errs.msg = str_none();
+    errs.msg = STR_NONE;
     return res;
 }
 

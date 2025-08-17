@@ -27,7 +27,11 @@ static const char *help_text =
     "    primes in the given range. The default lower bound is 0.\n"
     "\n" T_YELLOW "  -s  --start " T_WHITE "<S>\n" T_RESET
     "    Enable ranged mode and set the lower bound to S.\n"
-    "\n" T_YELLOW "  -e  --estimate\n" T_RESET "    Enable estimate mode.";
+    "\n" T_YELLOW "  -e  --estimate\n" T_RESET "    Enable estimate mode.\n"
+    "\n" T_YELLOW "  -o  --output " T_WHITE "<PATH>\n" T_RESET
+    "    Print the output to the given file. By default print to stdout.\n"
+
+    ;
 
 void help() {
     printf("%s", help_text);

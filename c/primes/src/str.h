@@ -19,6 +19,12 @@ typedef struct {
 /// @returns New borrowed string with static lifetime.
 #define STR(lit) ((Str){ .str = (lit), .len = sizeof(lit) - 1, .capacity = 0 })
 
+/// None string.
+#define STR_NONE ((Str){ .str = nullptr, .len = 0, .capacity = 0 })
+
+/// Empty string.
+#define STR_EMPTY STR("")
+
 /// @brief Create owned string with [`printf`] like formatting.
 /// @param fmt Formatting string same as in [`printf`].
 /// @param ... Parameters matching the format string `fmt`.
@@ -62,26 +68,6 @@ size_t str_pop_n(Str *s, size_t n);
 ///
 /// On error `s` is unmodified.
 bool str_push(Str *s, const Str *ext);
-
-/// @brief Create empty string.
-/// @returns Borrowed empty string.
-static inline Str str_empty() {
-    return (Str){
-        .str = "",
-        .len = 0,
-        .capacity = 0,
-    };
-}
-
-/// @brief Create none string.
-/// @returns Borrowed none string.
-static inline Str str_none() {
-    return (Str){
-        .str = nullptr,
-        .len = 0,
-        .capacity = 0,
-    };
-}
 
 /// @brief Borrow the given C string.
 /// @param[in] s C string that will be borrowed.

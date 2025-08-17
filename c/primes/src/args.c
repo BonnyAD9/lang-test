@@ -6,6 +6,7 @@
 
 #include "err.h"
 #include "str.h"
+#include "utils.h"
 
 static size_t parse_size(const Str *s);
 static Args arg_err();
@@ -15,6 +16,7 @@ Args arg_parse(const char *const *args) {
     Args res = {
         .start = 0,
         .end = 0,
+        .out = nullptr,
         .type = TYPE_DEFAULT,
         .mode = MODE_SINGLE,
     };
@@ -40,16 +42,35 @@ Args arg_parse(const char *const *args) {
             res.mode = MODE_RANGED;
             if (!*++args) {
                 err_fmt("Expected integer after `%s`.", arg.str);
+                arg_delete(&res);
                 return arg_err();
             }
             auto next = str_borrow_c(*args);
             res.start = parse_size(&next);
             if (err_any()) {
+                arg_delete(&res);
+                return arg_err();
+            }
+        } else if (str_eq(&arg, &STR("-o")) ||
+                   str_eq(&arg, &STR("--output"))) {
+            if (!*++args) {
+                err_fmt("Expected path to file after `%s`.", arg.str);
+                arg_delete(&res);
+                return arg_err();
+            }
+            if (res.out) {
+                fclose(res.out);
+                res.out = nullptr;
+            }
+            res.out = fopen(*args, "w");
+            if (!res.out) {
+                err_c_fmt("Failed to open file `%s`.", *args);
                 return arg_err();
             }
         } else {
             res.end = parse_size(&arg);
             if (err_any()) {
+                arg_delete(&res);
                 return arg_err();
             }
             num_set = true;
@@ -58,15 +79,31 @@ Args arg_parse(const char *const *args) {
 
     if (!num_set && res.type != TYPE_HELP) {
         err(STR("Missing number argument."));
+        arg_delete(&res);
         return arg_err();
     }
 
     if (res.start > res.end) {
         err(STR("Expected start of range to be smaller than the end."));
+        arg_delete(&res);
         return arg_err();
     }
 
+    if (!res.out) {
+        res.out = stdout;
+    }
+
     return res;
+}
+
+void arg_delete(Args *args) {
+    // it is OK to not close stdout.
+    CLANG_ASSERT(args->out != stdout);
+
+    if (args->out && args->out != stdout) {
+        fclose(args->out);
+    }
+    args->out = nullptr;
 }
 
 static size_t parse_size(const Str *s) {

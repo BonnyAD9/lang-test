@@ -22,20 +22,20 @@ Str str_vfmt(const char *fmt, va_list args) {
     va_end(args2);
     if (len < 0) {
         err_c(STR("Failed to determine fmt string length."));
-        return str_none();
+        return STR_NONE;
     }
 
     char *buf = malloc(len + 1);
     if (!buf) {
         err_c(STR("Failed to allocate data for string."));
-        return str_none();
+        return STR_NONE;
     }
 
     len = vsnprintf(buf, len + 1, fmt, args);
     if (len < 0) {
         free(buf);
         err_c(STR("Failed to write fmt string."));
-        return str_none();
+        return STR_NONE;
     }
 
     return (Str){

@@ -7,6 +7,7 @@
 #include "help.h"
 #include "primes.h"
 #include "sieve.h"
+#include "str.h"
 #include "term.h"
 
 static void start(Args *args);
@@ -26,6 +27,7 @@ static bool nth_estimate(Args *args);
 int main(int, char **argv) {
     auto ar = arg_parse((const char *const *)argv);
     start(&ar);
+    arg_delete(&ar);
     if (err_any()) {
         err_print();
         return EXIT_FAILURE;
@@ -64,9 +66,15 @@ static bool t_default(Args *args) {
 
 static bool default_single(Args *args) {
     if (is_prime(args->end)) {
-        printf("%zu is prime\n", args->end);
+        if (fprintf(args->out, "%zu is prime\n", args->end) < 0) {
+            err_c(STR("Failed to write to file."));
+            return false;
+        }
     } else {
-        printf("%zu is not prime\n", args->end);
+        if (fprintf(args->out, "%zu is not prime\n", args->end) < 0) {
+            err_c(STR("Failed to write to file."));
+            return false;
+        }
     }
 
     return true;
@@ -74,7 +82,10 @@ static bool default_single(Args *args) {
 
 static bool default_ranged(Args *args) {
     if (args->start <= 2 && args->end >= 2) {
-        printf("2\n");
+        if (fprintf(args->out, "2\n") < 0) {
+            err_c(STR("Failed to write to file."));
+            return false;
+        }
     }
 
     auto pm = es_new();
@@ -91,7 +102,10 @@ static bool default_ranged(Args *args) {
             es_delete(&pm);
             return false;
         case 1:
-            printf("%zu\n", i);
+            if (fprintf(args->out, "%zu\n", i) < 0) {
+                err_c(STR("Failed to write to file."));
+                return false;
+            }
             break;
         default:
             break;
@@ -121,9 +135,15 @@ static bool count(Args *args) {
 
 static bool count_single(Args *args) {
     if (is_prime(args->end)) {
-        printf("1\n");
+        if (fprintf(args->out, "1\n") < 0) {
+            err_c(STR("Failed to write to file."));
+            return false;
+        }
     } else {
-        printf("0\n");
+        if (fprintf(args->out, "0\n") < 0) {
+            err_c(STR("Failed to write to file."));
+            return false;
+        }
     }
     return true;
 }
@@ -145,7 +165,10 @@ static bool count_ranged(Args *args) {
 
     es_delete(&pm);
 
-    printf(T_MOVE_TO_START T_ERASE_TO_END "%zu\n", cnt);
+    if (fprintf(args->out, T_MOVE_TO_START T_ERASE_TO_END "%zu\n", cnt) < 0) {
+        err_c(STR("Failed to write to file."));
+        return false;
+    }
 
     return true;
 }
@@ -153,7 +176,10 @@ static bool count_ranged(Args *args) {
 static bool count_estimate(Args *args) {
     auto se = est_prime_cnt(args->start);
     auto ee = est_prime_cnt(args->end);
-    printf("%zu\n", ee - se);
+    if (fprintf(args->out, "%zu\n", ee - se) < 0) {
+        err_c(STR("Failed to write to file."));
+        return false;
+    }
     return true;
 }
 
@@ -176,7 +202,10 @@ static bool nth_single(Args *args) {
         return false;
     }
 
-    printf("%zu\n", res);
+    if (fprintf(args->out, "%zu\n", res) < 0) {
+        err_c(STR("Failed to write to file."));
+        return false;
+    }
     return true;
 }
 
@@ -191,14 +220,20 @@ static bool nth_ranged(Args *args) {
     size_t cnt = 0;
 
     if (start == 2) {
-        printf("2\n");
+        if (fprintf(args->out, "2\n") < 0) {
+            err_c(STR("Failed to write to file."));
+            return false;
+        }
         ++cnt;
         ++start;
     }
 
     for (size_t i = start; cnt < args->end; i += 2) {
         if (es_is_prime(&pm, i)) {
-            printf("%zu\n", i);
+            if (fprintf(args->out, "%zu\n", i) < 0) {
+                err_c(STR("Failed to write to file."));
+                return false;
+            }
             ++cnt;
         }
     }
@@ -209,6 +244,9 @@ static bool nth_ranged(Args *args) {
 }
 
 static bool nth_estimate(Args *args) {
-    printf("%zu\n", est_nth_prime(args->end));
+    if (fprintf(args->out, "%zu\n", est_nth_prime(args->end)) < 0) {
+        err_c(STR("Failed to write to file."));
+        return false;
+    }
     return true;
 }
