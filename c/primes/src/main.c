@@ -7,11 +7,22 @@
 #include "err.h"
 #include "help.h"
 #include "primap.h"
+#include "term.h"
+#include "utils.h"
 
 static void start(Args *args);
-static bool m_default(Args *args);
+static bool t_default(Args *args);
+static bool default_single(Args *args);
+static bool default_ranged(Args *args);
+static bool default_estimate(Args *args);
 static bool count(Args *args);
+static bool count_single(Args *args);
+static bool count_ranged(Args *args);
+static bool count_estimate(Args *args);
 static bool nth(Args *args);
+static bool nth_single(Args *args);
+static bool nth_ranged(Args *args);
+static bool nth_estimate(Args *args);
 static int (*fast_is_prime_for(size_t start, size_t end))(
     Primap *pm, size_t n
 );
@@ -27,35 +38,46 @@ int main(int, char **argv) {
 }
 
 static void start(Args *args) {
-    switch (args->mode) {
-    case MODE_ERROR:
+    switch (args->type) {
+    case TYPE_ERROR:
         break;
-    case MODE_HELP:
+    case TYPE_HELP:
         help();
         break;
-    case MODE_DEFAULT:
-        m_default(args);
+    case TYPE_DEFAULT:
+        t_default(args);
         break;
-    case MODE_COUNT:
+    case TYPE_COUNT:
         count(args);
         break;
-    case MODE_NTH:
+    case TYPE_NTH:
         nth(args);
         break;
     }
 }
 
-static bool m_default(Args *args) {
-    if (!args->ranged) {
-        if (is_prime(args->end)) {
-            printf("%zu is prime\n", args->end);
-        } else {
-            printf("%zu is not prime\n", args->end);
-        }
+static bool t_default(Args *args) {
+    switch (args->mode) {
+    case MODE_SINGLE:
+        return default_single(args);
+    case MODE_RANGED:
+        return default_ranged(args);
+    case MODE_ESTIMATE:
+        return default_estimate(args);
+    }
+}
 
-        return true;
+static bool default_single(Args *args) {
+    if (is_prime(args->end)) {
+        printf("%zu is prime\n", args->end);
+    } else {
+        printf("%zu is not prime\n", args->end);
     }
 
+    return true;
+}
+
+static bool default_ranged(Args *args) {
     if (args->start <= 2 && args->end >= 2) {
         printf("2\n");
     }
@@ -86,21 +108,32 @@ static bool m_default(Args *args) {
     return true;
 }
 
+static bool default_estimate(Args *) {
+    err(STR("Estimate not available for checking if number is prime."));
+    return false;
+}
+
 static bool count(Args *args) {
-    if (!args->ranged) {
-        if (is_prime(args->end)) {
-            printf("1\n");
-        } else {
-            printf("0\n");
-        }
-        return true;
+    switch (args->mode) {
+    case MODE_SINGLE:
+        return count_single(args);
+    case MODE_RANGED:
+        return count_ranged(args);
+    case MODE_ESTIMATE:
+        return count_estimate(args);
     }
+}
 
-    if (args->end == args->start) {
+static bool count_single(Args *args) {
+    if (is_prime(args->end)) {
+        printf("1\n");
+    } else {
         printf("0\n");
-        return true;
     }
+    return true;
+}
 
+static bool count_ranged(Args *args) {
     auto pm = pm_new();
     auto is = fast_is_prime_for(args->start, args->end);
 
@@ -117,23 +150,43 @@ static bool count(Args *args) {
 
     pm_delete(&pm);
 
-    printf("%zu\n", cnt);
+    printf(T_MOVE_TO_START T_ERASE_TO_END "%zu\n", cnt);
 
     return true;
 }
 
-static bool nth(Args *args) {
-    auto pm = pm_new();
-    if (!args->ranged) {
-        auto res = pm_nth(&pm, args->end);
-        pm_delete(&pm);
-        if (res == 0) {
-            return false;
-        }
+static bool count_estimate(Args *args) {
+    auto se = est_prime_cnt(args->start);
+    auto ee = est_prime_cnt(args->end);
+    printf("%zu\n", ee - se);
+    return true;
+}
 
-        printf("%zu\n", res);
-        return true;
+static bool nth(Args *args) {
+    switch (args->mode) {
+    case MODE_SINGLE:
+        return nth_single(args);
+    case MODE_RANGED:
+        return nth_ranged(args);
+    case MODE_ESTIMATE:
+        return nth_estimate(args);
     }
+}
+
+static bool nth_single(Args *args) {
+    auto pm = pm_new();
+    auto res = pm_nth(&pm, args->end);
+    pm_delete(&pm);
+    if (res == 0) {
+        return false;
+    }
+
+    printf("%zu\n", res);
+    return true;
+}
+
+static bool nth_ranged(Args *args) {
+    auto pm = pm_new();
 
     auto start = pm_nth(&pm, args->start);
     if (start == 0) {
@@ -149,21 +202,19 @@ static bool nth(Args *args) {
     }
 
     for (size_t i = start; cnt < args->end; i += 2) {
-        switch (pm_is_prime(&pm, i)) {
-        case -1:
-            pm_delete(&pm);
-            return false;
-        case 1:
+        if (pm_is_prime(&pm, i)) {
             printf("%zu\n", i);
             ++cnt;
-            break;
-        default:
-            break;
         }
     }
 
     pm_delete(&pm);
 
+    return true;
+}
+
+static bool nth_estimate(Args *args) {
+    printf("%zu\n", est_nth_prime(args->end));
     return true;
 }
 

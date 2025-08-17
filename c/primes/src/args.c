@@ -10,12 +10,13 @@
 static size_t parse_size(const Str *s);
 static Args arg_err();
 
+// NOLINTNEXTLINE(readability-function-cognitive-complexity)
 Args arg_parse(const char *const *args) {
     Args res = {
         .start = 0,
         .end = 0,
-        .mode = MODE_DEFAULT,
-        .ranged = false,
+        .type = TYPE_DEFAULT,
+        .mode = MODE_SINGLE,
     };
 
     bool num_set = false;
@@ -25,15 +26,18 @@ Args arg_parse(const char *const *args) {
 
         if (str_eq(&arg, &STR("-h")) || str_eq(&arg, &STR("-?")) ||
             str_eq(&arg, &STR("--help"))) {
-            res.mode = MODE_HELP;
+            res.type = TYPE_HELP;
         } else if (str_eq(&arg, &STR("-n")) || str_eq(&arg, &STR("--nth"))) {
-            res.mode = MODE_NTH;
+            res.type = TYPE_NTH;
         } else if (str_eq(&arg, &STR("-c")) || str_eq(&arg, &STR("--count"))) {
-            res.mode = MODE_COUNT;
+            res.type = TYPE_COUNT;
+        } else if (str_eq(&arg, &STR("-e")) ||
+                   str_eq(&arg, &STR("--estimate"))) {
+            res.mode = MODE_ESTIMATE;
         } else if (str_eq(&arg, &STR("-r")) || str_eq(&arg, &STR("--range"))) {
-            res.ranged = true;
+            res.mode = MODE_RANGED;
         } else if (str_eq(&arg, &STR("-s")) || str_eq(&arg, &STR("--from"))) {
-            res.ranged = true;
+            res.mode = MODE_RANGED;
             if (!*++args) {
                 err(str_fmt("Expected integer after `%s`.", arg.str));
                 return arg_err();
@@ -52,7 +56,7 @@ Args arg_parse(const char *const *args) {
         }
     }
 
-    if (!num_set && res.mode != MODE_HELP) {
+    if (!num_set && res.type != TYPE_HELP) {
         err(STR("Missing number argument."));
         return arg_err();
     }
@@ -88,5 +92,5 @@ static size_t parse_size(const Str *s) {
 }
 
 static Args arg_err() {
-    return (Args){ .mode = MODE_ERROR };
+    return (Args){ .type = TYPE_ERROR };
 }

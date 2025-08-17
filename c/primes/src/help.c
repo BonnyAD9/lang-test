@@ -16,15 +16,18 @@ static const char *help_text =
     "    Print this help and exit.\n"
     "\n" T_YELLOW "  -n  --nth\n" T_RESET
     "    Calculate the Nth prime instead of checking if N is prime. In\n"
-    "    ranged mode, print all prames whoose index is in the range.\n"
+    "    ranged mode, print all prames whoose index is in the range. In\n"
+    "    estimate mode, estimate the value of nth prime number."
     "\n" T_YELLOW "  -c  --count\n" T_RESET
     "    Count the number of primes in the given range. If ranged mode is\n"
-    "    not enabled, print 1 if number is prime and otherwise 0.\n"
+    "    not enabled, print 1 if number is prime and otherwise 0. In\n"
+    "    estimate mode, estimate the number of primes in the range."
     "\n" T_YELLOW "  -r  --range\n" T_RESET
     "    Enable ranged mode. When this mode is enabled, by default print all\n"
     "    primes in the given range. The default lower bound is 0.\n"
     "\n" T_YELLOW "  -s  --start " T_WHITE "<S>\n" T_RESET
-    "    Enable ranged mode and set the lower bound to S.\n";
+    "    Enable ranged mode and set the lower bound to S.\n"
+    "\n" T_YELLOW "  -e  --estimate\n" T_RESET "    Enable estimate mode.";
 
 void help() {
     printf("%s", help_text);

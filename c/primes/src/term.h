@@ -63,4 +63,7 @@
 /// Set foreground color to cyan.
 #define T_CYAN T_COLOR(96)
 
+#define T_MOVE_TO_START T_CSI("G")
+#define T_ERASE_TO_END T_CSI("0J")
+
 #endif // TERM_H_INCLUDED

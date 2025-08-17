@@ -3,21 +3,27 @@
 
 #include <stddef.h>
 
-/// What should be done. Mode of operation of the program.
+/// What should be done. Type of operation of the program.
 typedef enum {
-    MODE_ERROR,
-    MODE_HELP,
-    MODE_DEFAULT,
-    MODE_COUNT,
-    MODE_NTH,
+    TYPE_ERROR,
+    TYPE_HELP,
+    TYPE_DEFAULT,
+    TYPE_COUNT,
+    TYPE_NTH,
+} Type;
+
+typedef enum {
+    MODE_SINGLE,
+    MODE_RANGED,
+    MODE_ESTIMATE,
 } Mode;
 
 /// Parsed command line arguments.
 typedef struct {
     size_t start;
     size_t end;
+    Type type;
     Mode mode;
-    bool ranged;
 } Args;
 
 /// @brief Parse the command line arguments.

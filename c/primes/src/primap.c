@@ -9,6 +9,7 @@
 #include <string.h>
 
 #include "err.h"
+#include "utils.h"
 
 static bool resize(Primap *pm, size_t n);
 static void extend(Primap *pm, size_t old);
@@ -54,7 +55,7 @@ size_t pm_nth(Primap *pm, size_t n) {
         return 2;
     }
     // Fast precalculation
-    pm_is_prime(pm, n * (size_t)ceil(log((double)n)));
+    pm_is_prime(pm, est_nth_prime(n));
 
     size_t i = 0;
 
