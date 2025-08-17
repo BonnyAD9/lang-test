@@ -1,14 +1,13 @@
 #include <assert.h>
-#include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
 
 #include "args.h"
 #include "err.h"
 #include "help.h"
-#include "primap.h"
+#include "primes.h"
+#include "sieve.h"
 #include "term.h"
-#include "utils.h"
 
 static void start(Args *args);
 static bool t_default(Args *args);
@@ -23,10 +22,6 @@ static bool nth(Args *args);
 static bool nth_single(Args *args);
 static bool nth_ranged(Args *args);
 static bool nth_estimate(Args *args);
-static int (*fast_is_prime_for(size_t start, size_t end))(
-    Primap *pm, size_t n
-);
-static int is_prime(size_t num);
 
 int main(int, char **argv) {
     auto ar = arg_parse((const char *const *)argv);
@@ -82,18 +77,18 @@ static bool default_ranged(Args *args) {
         printf("2\n");
     }
 
-    auto pm = pm_new();
+    auto pm = es_new();
     auto is = fast_is_prime_for(args->start, args->end);
 
-    if (is == pm_is_prime && !pm_precalc(&pm, args->end - 1)) {
-        pm_delete(&pm);
+    if (is == es_is_prime && !es_precalc(&pm, args->end - 1)) {
+        es_delete(&pm);
         return false;
     }
 
     for (size_t i = args->start | 1; i < args->end; i += 2) {
         switch (is(&pm, i)) {
         case -1:
-            pm_delete(&pm);
+            es_delete(&pm);
             return false;
         case 1:
             printf("%zu\n", i);
@@ -103,7 +98,7 @@ static bool default_ranged(Args *args) {
         }
     }
 
-    pm_delete(&pm);
+    es_delete(&pm);
 
     return true;
 }
@@ -134,11 +129,11 @@ static bool count_single(Args *args) {
 }
 
 static bool count_ranged(Args *args) {
-    auto pm = pm_new();
+    auto pm = es_new();
     auto is = fast_is_prime_for(args->start, args->end);
 
-    if (is == pm_is_prime && !pm_precalc(&pm, args->end - 1)) {
-        pm_delete(&pm);
+    if (is == es_is_prime && !es_precalc(&pm, args->end - 1)) {
+        es_delete(&pm);
         return false;
     }
 
@@ -148,7 +143,7 @@ static bool count_ranged(Args *args) {
         cnt += is(&pm, i);
     }
 
-    pm_delete(&pm);
+    es_delete(&pm);
 
     printf(T_MOVE_TO_START T_ERASE_TO_END "%zu\n", cnt);
 
@@ -174,9 +169,9 @@ static bool nth(Args *args) {
 }
 
 static bool nth_single(Args *args) {
-    auto pm = pm_new();
-    auto res = pm_nth(&pm, args->end);
-    pm_delete(&pm);
+    auto pm = es_new();
+    auto res = es_nth(&pm, args->end);
+    es_delete(&pm);
     if (res == 0) {
         return false;
     }
@@ -186,11 +181,11 @@ static bool nth_single(Args *args) {
 }
 
 static bool nth_ranged(Args *args) {
-    auto pm = pm_new();
+    auto pm = es_new();
 
-    auto start = pm_nth(&pm, args->start);
+    auto start = es_nth(&pm, args->start);
     if (start == 0) {
-        pm_delete(&pm);
+        es_delete(&pm);
         return false;
     }
     size_t cnt = 0;
@@ -202,59 +197,18 @@ static bool nth_ranged(Args *args) {
     }
 
     for (size_t i = start; cnt < args->end; i += 2) {
-        if (pm_is_prime(&pm, i)) {
+        if (es_is_prime(&pm, i)) {
             printf("%zu\n", i);
             ++cnt;
         }
     }
 
-    pm_delete(&pm);
+    es_delete(&pm);
 
     return true;
 }
 
 static bool nth_estimate(Args *args) {
     printf("%zu\n", est_nth_prime(args->end));
-    return true;
-}
-
-static int naive_is_prime(Primap *, size_t n) {
-    return is_prime(n);
-}
-
-static int (*fast_is_prime_for(size_t start, size_t end))(
-    Primap *pm, size_t n
-) {
-    constexpr double NAIVE_MULT = 0.2;
-    auto sieve = (double)end * log((double)end);
-    auto naive = (double)(end - start) * sqrt((double)end) * NAIVE_MULT;
-    if (naive < sieve) {
-        return naive_is_prime;
-    }
-    return pm_is_prime;
-}
-
-static int is_prime(size_t n) {
-    if (n <= 1) {
-        return false;
-    }
-
-    if (n == 2 || n == 3) {
-        return true;
-    }
-
-    if (n % 2 == 0 || n % 3 == 0) {
-        return false;
-    }
-
-    auto lim = (size_t)ceil(sqrt((double)n));
-
-    // NOLINTNEXTLINE(readability-magic-numbers)
-    for (size_t i = 5; i <= lim; i += 6) {
-        if (n % i == 0 || n % (i + 2) == 0) {
-            return false;
-        }
-    }
-
     return true;
 }

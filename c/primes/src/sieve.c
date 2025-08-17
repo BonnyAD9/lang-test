@@ -1,7 +1,6 @@
-#include "primap.h"
+#include "sieve.h"
 
 #include <assert.h>
-#include <math.h>
 #include <stdbit.h>
 #include <stdint.h>
 #include <stdio.h>
@@ -9,24 +8,24 @@
 #include <string.h>
 
 #include "err.h"
-#include "utils.h"
+#include "primes.h"
 
-static bool resize(Primap *pm, size_t n);
-static void extend(Primap *pm, size_t old);
+static bool resize(Sieve *pm, size_t n);
+static void extend(Sieve *pm, size_t old);
 
 constexpr static size_t FIRST64 =
     //  12   11   10    9    8    7    6    5    4    3    2    1    0
     // 7531975319753197531975319753197531975319753197531975319753197531
     0b1000000101101101000100101001101001100100101101001100101101101110;
 
-Primap pm_new() {
-    return (Primap){
+Sieve es_new() {
+    return (Sieve){
         .map = nullptr,
         .len = 0,
     };
 }
 
-int pm_is_prime(Primap *pm, size_t n) {
+int es_is_prime(Sieve *pm, size_t n) {
     if (n % 2 == 0) {
         return n == 2;
     }
@@ -45,22 +44,22 @@ int pm_is_prime(Primap *pm, size_t n) {
     return (pm->map[idx] & mask) == mask;
 }
 
-void pm_delete(Primap *pm) {
+void es_delete(Sieve *pm) {
     free(pm->map);
-    *pm = pm_new();
+    *pm = es_new();
 }
 
-size_t pm_nth(Primap *pm, size_t n) {
+size_t es_nth(Sieve *pm, size_t n) {
     if (n == 0) {
         return 2;
     }
     // Fast precalculation
-    pm_is_prime(pm, est_nth_prime(n));
+    es_is_prime(pm, est_nth_prime(n));
 
     size_t i = 0;
 
     for (size_t c = 0; c < n; ++i) {
-        switch (pm_is_prime(pm, i)) {
+        switch (es_is_prime(pm, i)) {
         case -1:
             return 0;
         case 0:
@@ -77,7 +76,7 @@ size_t pm_nth(Primap *pm, size_t n) {
     return i - 1;
 }
 
-bool pm_precalc(Primap *pm, size_t n) {
+bool es_precalc(Sieve *pm, size_t n) {
     auto size = n / 2 / SIZE_WIDTH;
     if (size > pm->len) {
         return resize(pm, size + 1);
@@ -85,7 +84,7 @@ bool pm_precalc(Primap *pm, size_t n) {
     return true;
 }
 
-static bool resize(Primap *pm, size_t n) {
+static bool resize(Sieve *pm, size_t n) {
     auto new_map = (size_t *)realloc(pm->map, n * sizeof(*pm->map));
     if (!new_map) {
         err_c(STR("Failed to resize primap."));
@@ -102,7 +101,7 @@ static bool resize(Primap *pm, size_t n) {
     return true;
 }
 
-static void extend(Primap *pm, size_t old) {
+static void extend(Sieve *pm, size_t old) {
     size_t i = old * 64;
     if (old == 0) {
         *pm->map = FIRST64;
