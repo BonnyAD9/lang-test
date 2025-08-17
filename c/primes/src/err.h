@@ -7,10 +7,21 @@
 /// @param msg Error message.
 void err(Str msg);
 
+/// @brief Raise error with the given formatted message.
+/// @param fmt Format string for the message (same as [`printf`]).
+/// @param ... Format arguments for the format string.
+void err_fmt(const char *fmt, ...);
+
 /// @brief Raise errorr with the given message. Also fetch message from C error
 /// stack.
 /// @param msg Error message. Will be appended with C error message.
 void err_c(Str msg);
+
+/// @brief Raise error with the given formatted message and append to it C
+/// error message.
+/// @param fmt Format string for the message (same as [`printf`]).
+/// @param ... Format arguments for the format string.
+void err_c_fmt(const char *fmt, ...);
 
 /// @brief Pop the error. The error will be cleared.
 /// @returns Error message. [`str_none`] if there is no error.

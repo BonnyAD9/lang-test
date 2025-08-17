@@ -39,7 +39,7 @@ Args arg_parse(const char *const *args) {
         } else if (str_eq(&arg, &STR("-s")) || str_eq(&arg, &STR("--from"))) {
             res.mode = MODE_RANGED;
             if (!*++args) {
-                err(str_fmt("Expected integer after `%s`.", arg.str));
+                err_fmt("Expected integer after `%s`.", arg.str);
                 return arg_err();
             }
             auto next = str_borrow_c(*args);
@@ -71,7 +71,7 @@ Args arg_parse(const char *const *args) {
 
 static size_t parse_size(const Str *s) {
     if (str_starts_with(s, &STR("-"))) {
-        err(str_fmt("Expected `%s` to be positive number.", s->str));
+        err_fmt("Expected `%s` to be positive number.", s->str);
         return 0;
     }
 
@@ -79,11 +79,9 @@ static size_t parse_size(const Str *s) {
     auto res = strtoull(s->str, &e, 0);
     if (*e && (res == 0 || res == ULLONG_MAX)) {
         if (res == 0 || res == ULLONG_MAX) {
-            err_c(
-                str_fmt("Failed to parse `%s` to unsigned integer.", s->str)
-            );
+            err_c_fmt("Failed to parse `%s` to unsigned integer.", s->str);
         } else {
-            err(str_fmt("Failed to parse `%s` to unsigned integer.", s->str));
+            err_fmt("Failed to parse `%s` to unsigned integer.", s->str);
         }
         return 0;
     }

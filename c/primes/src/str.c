@@ -10,8 +10,16 @@
 Str str_fmt(const char *fmt, ...) {
     va_list args;
     va_start(args);
-    auto len = vsnprintf(nullptr, 0, fmt, args);
+    auto res = str_vfmt(fmt, args);
     va_end(args);
+    return res;
+}
+
+Str str_vfmt(const char *fmt, va_list args) {
+    va_list args2;
+    va_copy(args2, args);
+    auto len = vsnprintf(nullptr, 0, fmt, args2);
+    va_end(args2);
     if (len < 0) {
         err_c(STR("Failed to determine fmt string length."));
         return str_none();
@@ -23,9 +31,7 @@ Str str_fmt(const char *fmt, ...) {
         return str_none();
     }
 
-    va_start(args);
     len = vsnprintf(buf, len + 1, fmt, args);
-    va_end(args);
     if (len < 0) {
         free(buf);
         err_c(STR("Failed to write fmt string."));

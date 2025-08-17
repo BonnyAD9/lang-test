@@ -2,6 +2,7 @@
 #define STRING_H_INCLUDED
 
 #include <stddef.h>
+#include <stdio.h>
 #include <string.h>
 
 /// String with length.
@@ -24,6 +25,13 @@ typedef struct {
 /// @returns New owned string created from the format. On error returns
 /// [`str_none`] and `err` is populated.
 Str str_fmt(const char *fmt, ...);
+
+/// @brief Create owned string [`printf`] like formatting.
+/// @param fmt Formatting string same as in [`printf`].
+/// @param args Variadic argument list.
+/// @returns New owned string created from the format. On error returns
+/// [`str_none`] and `err` is populated.
+Str str_vfmt(const char *fmt, va_list args);
 
 /// Free data owned by the string and make it [`str_none`].
 void str_delete(Str *s);
