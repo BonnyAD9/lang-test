@@ -3,6 +3,8 @@
 
 #include "str.h"
 
+// Error handling in C is pain :C
+
 /// @brief Raise error with the given message.
 /// @param msg Error message.
 void err(Str msg);
