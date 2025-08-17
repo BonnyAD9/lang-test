@@ -1,6 +1,6 @@
 # primes
 
-Fastish number calculator written in C.
+Fastish prime number calculator written in C.
 
 Capabilities:
 - Check whether number is prime.
