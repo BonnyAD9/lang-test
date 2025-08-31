@@ -42,9 +42,9 @@ bool hexdump_file(const Args *args) {
 
     auto flen = file_len(file);
     auto label_len = args->label ? (stdc_bit_width(flen) + 3) / 4 : 0;
-    char label_fmt[sizeof("%016zx  ")] = { 0 };
+    char label_fmt[sizeof("%016zX  ")] = { 0 };
     if (label_len != 0) {
-        sprintf(label_fmt, "%%0%uzx  ", label_len);
+        sprintf(label_fmt, "%%0%uzX  ", label_len);
     }
 
     char buf[16];
@@ -67,7 +67,7 @@ bool hexdump_file(const Args *args) {
         return false;
     }
 
-    if (label_len != 0) {
+    if (label_len != 0 && flen % 4 != 0) {
         printf(label_fmt, flen);
         printf("\n");
     }
