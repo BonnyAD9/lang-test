@@ -17,7 +17,7 @@ int main(int, char **argv) {
         return EXIT_SUCCESS;
     }
     auto msg = err_pop();
-    fprintf(stderr, "error: %s", msg.c);
+    fprintf(stderr, "error: %s\n", msg.c);
     str_free(&msg);
     return EXIT_FAILURE;
 }
