@@ -12,6 +12,7 @@ typedef enum {
 typedef struct {
     Action action;
     Str file;
+    bool label;
 } Args;
 
 Args args_parse(char **argv);
