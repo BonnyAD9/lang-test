@@ -33,8 +33,9 @@ static const char *help_text =
     "\n"
     "    “ " T_ITALIC "One who despises the word will do badly, But\n"
     "      one who fears the commandment will be rewarded." T_RESET " ”\n"
-    "                                       " T_BOLD T_WHITE "✝ Proverbs 13:13\n" T_RESET;
-    ;
+    "                                       " T_BOLD T_WHITE
+    "✝ Proverbs 13:13\n" T_RESET;
+;
 
 void help() {
     printf("%s", help_text);
