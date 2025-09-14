@@ -9,4 +9,4 @@ Testing/learning languages on small projects.
 - Snake
 - Fractal generator
 - Fractal renderer
-- Compilr
+- Compiler
