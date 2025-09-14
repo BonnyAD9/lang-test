@@ -25,7 +25,11 @@ static const char *help_text =
     "    Enable ascii column. (enabled by default).\n"
     "\n"
     "  -A  --no-ascii\n"
-    "    Disable ascii column. (enabled by default)\n";
+    "    Disable ascii column. (enabled by default)\n"
+    "\n"
+    "    “ One who despises the word will do badly, But\n"
+    "      one who fears the commandment will be rewarded. ”\n"
+    "                                       ✝ Proverbs 13:13\n";
 
 void help() {
     printf("%s", help_text);

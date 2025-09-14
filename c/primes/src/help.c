@@ -30,7 +30,10 @@ static const char *help_text =
     "\n" T_YELLOW "  -e  --estimate\n" T_RESET "    Enable estimate mode.\n"
     "\n" T_YELLOW "  -o  --output " T_WHITE "<PATH>\n" T_RESET
     "    Print the output to the given file. By default print to stdout.\n"
-
+    "\n"
+    "    “ " T_ITALIC "One who despises the word will do badly, But\n"
+    "      one who fears the commandment will be rewarded." T_RESET " ”\n"
+    "                                       " T_BOLD T_WHITE "✝ Proverbs 13:13\n" T_RESET;
     ;
 
 void help() {
