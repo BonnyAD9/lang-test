@@ -21,6 +21,7 @@ bool args_short_opts(Args *args, char ***argv, const Str *arg);
 Args args_parse(char **argv) {
     Args args = {
         .label = true,
+        .ascii = true,
     };
 
     while (*++argv) {
@@ -38,6 +39,10 @@ Args args_parse(char **argv) {
             args.label = false;
         } else if (STR_EQ(&arg, "--label")) {
             args.label = true;
+        } else if (STR_EQ(&arg, "--no-ascii")) {
+            args.ascii = false;
+        } else if (STR_EQ(&arg, "--ascii")) {
+            args.ascii = true;
         } else {
             args.file = arg;
         }
@@ -68,6 +73,12 @@ bool args_short_opts(Args *args, char ***argv, const Str *arg) {
             break;
         case 'l':
             args->label = true;
+            break;
+        case 'A':
+            args->ascii = false;
+            break;
+        case 'a':
+            args->ascii = true;
             break;
         default:
             err_fmt("Unknown short option `%c`", *c);

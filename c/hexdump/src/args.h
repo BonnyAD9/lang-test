@@ -13,6 +13,7 @@ typedef struct {
     Action action;
     Str file;
     bool label;
+    bool ascii;
 } Args;
 
 Args args_parse(char **argv);

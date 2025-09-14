@@ -19,7 +19,13 @@ static const char *help_text =
     "    Enable file position on each line. (enabled by default).\n"
     "\n"
     "  -L  --no-label\n"
-    "    Disable file postion on each line. (enabled by default).\n";
+    "    Disable file postion on each line. (enabled by default).\n"
+    "\n"
+    "  -a  --ascii\n"
+    "    Enable ascii column. (enabled by default).\n"
+    "\n"
+    "  -A  --no-ascii\n"
+    "    Disable ascii column. (enabled by default)\n";
 
 void help() {
     printf("%s", help_text);

@@ -1,3 +1,4 @@
+#include <ctype.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -6,9 +7,13 @@
 #include "err.h"
 #include "utils.h"
 
-void start(Args *args);
-bool hexdump_file(const Args *args);
+static void start(Args *args);
+static bool hexdump_file(const Args *args);
+static void print_hex(const char *buf, size_t len);
+static void print_ascii(char *buf, size_t len);
 static size_t file_len(FILE *f);
+
+static constexpr size_t LINE_SIZE = 16;
 
 int main(int, char **argv) {
     auto args = args_parse(argv);
@@ -22,7 +27,7 @@ int main(int, char **argv) {
     return EXIT_FAILURE;
 }
 
-void start(Args *args) {
+static void start(Args *args) {
     switch (args->action) {
     case ACT_DUMP:
         hexdump_file(args);
@@ -33,7 +38,7 @@ void start(Args *args) {
     }
 }
 
-bool hexdump_file(const Args *args) {
+static bool hexdump_file(const Args *args) {
     auto file = fopen(args->file.c, "rb");
     if (!file) {
         err_c_fmt("Failed to open file `%s`.", args->file.c);
@@ -42,21 +47,21 @@ bool hexdump_file(const Args *args) {
 
     auto flen = file_len(file);
     auto label_len = args->label ? (stdc_bit_width(flen) + 3) / 4 : 0;
-    char label_fmt[sizeof("%016zX  ")] = { 0 };
+    const char label[] = "%%0%uzX   ";
+    char label_fmt[sizeof(label)] = { 0 };
     if (label_len != 0) {
-        sprintf(label_fmt, "%%0%uzX  ", label_len);
+        sprintf(label_fmt, label, label_len);
     }
 
-    char buf[16];
-    for (size_t pos = 0; !feof(file) && !ferror(file); pos += 16) {
+    char buf[LINE_SIZE + 1];
+    for (size_t pos = 0; !feof(file) && !ferror(file); pos += LINE_SIZE) {
         printf(label_fmt, pos);
-        size_t cnt = fread(buf, 1, 16, file);
-        auto flim = MIN(cnt, 8);
-        for (size_t i = 0; i < flim; ++i) {
-            printf("%02hhX ", buf[i]);
-        }
-        for (size_t i = flim; i < cnt; ++i) {
-            printf(" %02hhX", buf[i]);
+        size_t cnt = fread(buf, 1, LINE_SIZE, file);
+        buf[cnt] = 0;
+        print_hex(buf, cnt);
+        if (args->ascii) {
+            printf("   ");
+            print_ascii(buf, cnt);
         }
         printf("\n");
     }
@@ -74,6 +79,29 @@ bool hexdump_file(const Args *args) {
 
     fclose(file);
     return true;
+}
+
+static void print_hex(const char *buf, size_t len) {
+    auto flim = MIN(len, LINE_SIZE / 2);
+    size_t i = 0;
+    for (; i < flim; ++i) {
+        printf("%02hhX ", buf[i]);
+    }
+    for (; i < len; ++i) {
+        printf(" %02hhX", buf[i]);
+    }
+    for (; i < LINE_SIZE; ++i) {
+        printf("   ");
+    }
+}
+
+static void print_ascii(char *buf, size_t len) {
+    for (size_t i = 0; i < len; ++i) {
+        if (!isprint((unsigned char)buf[i])) {
+            buf[i] = '.';
+        }
+    }
+    printf("|%s|", buf);
 }
 
 static size_t file_len(FILE *f) {
