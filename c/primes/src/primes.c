@@ -53,8 +53,61 @@ size_t est_nth_prime(size_t n) {
     double la = log(a);
     double ala = a * la;
     double lla = log(la);
-    /// NOLINTNEXTLINE(readability-magic-numbers)
+    // NOLINTNEXTLINE(readability-magic-numbers)
     double res = n < 7022 ? ala + a * lla : ala + a * (lla - 0.9385);
     res = ceil(res);
     return (size_t)MAX(0, res) | 1;
+}
+
+FactorState factors_init(size_t n) {
+    return (FactorState){
+        .num = n,
+        .idx = 0,
+    };
+}
+
+size_t next_factor(FactorState *fs) {
+    size_t n = fs->num;
+    size_t i = fs->idx;
+
+    if (n == 1) {
+        return 0;
+    }
+
+    if (i == 0) {
+        if (n % 2 == 0) {
+            fs->num = n / 2;
+            return 2;
+        }
+
+        if (n % 3 == 0) {
+            fs->num = n / 3;
+            return 3;
+        }
+
+        // NOLINTNEXTLINE(readability-magic-numbers)
+        i = 5;
+    }
+
+    auto lim = (size_t)ceil(sqrt((double)n));
+
+    // NOLINTNEXTLINE(readability-magic-numbers)
+    for (; i <= lim; i += 6) {
+        if (n % i == 0) {
+            fs->num = n / i;
+            fs->idx = i;
+            return i;
+        }
+
+        auto ii = i + 2;
+        if (n % ii == 0) {
+            fs->num = n / ii;
+            fs->idx = i;
+            return ii;
+        }
+    }
+
+    fs->num = 1;
+    fs->idx = 1;
+    return n;
 }

@@ -16,7 +16,7 @@ thread_local static struct {
     bool guard;
 } errs;
 
-void err_c_code(Str msg, int code);
+static void err_c_code(Str msg, int code);
 
 void err(Str msg) {
     if (str_is_none(&errs.msg)) {
@@ -46,6 +46,7 @@ void err_c(Str msg) {
     }
     errs.guard = true;
     err_c_code(msg, errno);
+    errno = 0;
     errs.guard = false;
 }
 
@@ -56,6 +57,7 @@ void err_c_fmt(const char *fmt, ...) {
     errs.guard = true;
 
     auto code = errno;
+    errno = 0;
     va_list args;
     va_start(args);
     err_c_code(str_vfmt(fmt, args), code);

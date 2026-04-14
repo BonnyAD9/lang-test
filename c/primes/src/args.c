@@ -33,11 +33,21 @@ Args arg_parse(const char *const *args) {
             res.type = TYPE_NTH;
         } else if (str_eq(&arg, &STR("-c")) || str_eq(&arg, &STR("--count"))) {
             res.type = TYPE_COUNT;
-        } else if (str_eq(&arg, &STR("-e")) ||
-                   str_eq(&arg, &STR("--estimate"))) {
+        } else if (
+            str_eq(&arg, &STR("-e")) || str_eq(&arg, &STR("--estimate"))
+        ) {
             res.mode = MODE_ESTIMATE;
         } else if (str_eq(&arg, &STR("-r")) || str_eq(&arg, &STR("--range"))) {
             res.mode = MODE_RANGED;
+        } else if (
+            str_eq(&arg, &STR("-f")) || str_eq(&arg, &STR("--factor"))
+        ) {
+            res.mode = MODE_FACTOR;
+        } else if (
+            str_eq(&arg, &STR("-a")) ||
+            str_eq(&arg, &STR("--aggregate-factor"))
+        ) {
+            res.mode = MODE_AGGREGATE_FACTOR;
         } else if (str_eq(&arg, &STR("-s")) || str_eq(&arg, &STR("--from"))) {
             res.mode = MODE_RANGED;
             if (!*++args) {
@@ -51,8 +61,9 @@ Args arg_parse(const char *const *args) {
                 arg_delete(&res);
                 return arg_err();
             }
-        } else if (str_eq(&arg, &STR("-o")) ||
-                   str_eq(&arg, &STR("--output"))) {
+        } else if (
+            str_eq(&arg, &STR("-o")) || str_eq(&arg, &STR("--output"))
+        ) {
             if (!*++args) {
                 err_fmt("Expected path to file after `%s`.", arg.str);
                 arg_delete(&res);
@@ -113,13 +124,14 @@ static size_t parse_size(const Str *s) {
     }
 
     char *e;
+    errno = 0;
     auto res = strtoull(s->str, &e, 0);
-    if (*e && (res == 0 || res == ULLONG_MAX)) {
-        if (res == 0 || res == ULLONG_MAX) {
-            err_c_fmt("Failed to parse `%s` to unsigned integer.", s->str);
-        } else {
-            err_fmt("Failed to parse `%s` to unsigned integer.", s->str);
-        }
+    if (err_c_any()) {
+        err_c_fmt("Failed to parse `%s` to unsigned integer.", s->str);
+        return 0;
+    }
+    if (*e) {
+        err_fmt("Failed to parse `%s` to unsigned integer.", s->str);
         return 0;
     }
 

@@ -17,6 +17,8 @@ typedef enum {
     MODE_SINGLE,
     MODE_RANGED,
     MODE_ESTIMATE,
+    MODE_FACTOR,
+    MODE_AGGREGATE_FACTOR,
 } Mode;
 
 /// Parsed command line arguments.

@@ -1,6 +1,8 @@
 #ifndef ERR_H_INCLUDED
 #define ERR_H_INCLUDED
 
+#include <errno.h>
+
 #include "str.h"
 
 // Error handling in C is pain :C
@@ -32,6 +34,12 @@ Str err_pop();
 /// @brief Checks if there is any error.
 /// @returns `true` if there is any error, otherwise `false`.
 bool err_any();
+
+/// @brief Checks if there is any error.
+/// @returns `true` if there is any error, otherwise `false`.
+static inline bool err_c_any() {
+    return errno != 0;
+}
 
 /// Prints the current error (if any) to stderr.
 void err_print();

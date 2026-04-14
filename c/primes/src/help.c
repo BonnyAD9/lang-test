@@ -28,6 +28,10 @@ static const char *help_text =
     "\n" T_YELLOW "  -s  --start " T_WHITE "<S>\n" T_RESET
     "    Enable ranged mode and set the lower bound to S.\n"
     "\n" T_YELLOW "  -e  --estimate\n" T_RESET "    Enable estimate mode.\n"
+    "\n" T_YELLOW "  -f  --factor\n" T_RESET
+    "    Calculate the prime factors of the given number.\n"
+    "\n" T_YELLOW "  -a  --aggregate-factors\n" T_RESET
+    "    Calculate the distinct prime factors of the given number.\n"
     "\n" T_YELLOW "  -o  --output " T_WHITE "<PATH>\n" T_RESET
     "    Print the output to the given file. By default print to stdout.\n"
     "\n"

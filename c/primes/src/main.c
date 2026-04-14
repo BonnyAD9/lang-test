@@ -15,14 +15,20 @@ static bool t_default(Args *args);
 static bool default_single(Args *args);
 static bool default_ranged(Args *args);
 static bool default_estimate(Args *args);
+static bool default_factors(Args *args);
+static bool default_aggregate_factors(Args *args);
 static bool count(Args *args);
 static bool count_single(Args *args);
 static bool count_ranged(Args *args);
 static bool count_estimate(Args *args);
+static bool count_factors(Args *args);
+static bool count_aggregate_factors(Args *args);
 static bool nth(Args *args);
 static bool nth_single(Args *args);
 static bool nth_ranged(Args *args);
 static bool nth_estimate(Args *args);
+static bool nth_factor(Args *args);
+static bool nth_aggregate_factor(Args *args);
 
 int main(int, char **argv) {
     auto ar = arg_parse((const char *const *)argv);
@@ -61,6 +67,10 @@ static bool t_default(Args *args) {
         return default_ranged(args);
     case MODE_ESTIMATE:
         return default_estimate(args);
+    case MODE_FACTOR:
+        return default_factors(args);
+    case MODE_AGGREGATE_FACTOR:
+        return default_aggregate_factors(args);
     }
 }
 
@@ -122,6 +132,52 @@ static bool default_estimate(Args *) {
     return false;
 }
 
+static bool default_factors(Args *args) {
+    auto fs = factors_init(args->end);
+
+    size_t res = 0;
+    for (auto n = next_factor(&fs); n != 0; n = next_factor(&fs)) {
+        fprintf(args->out, "%zu\n", n);
+        ++res;
+    }
+
+    fprintf(args->out, "total of %zu factors\n", res);
+
+    return true;
+}
+
+static bool default_aggregate_factors(Args *args) {
+    auto fs = factors_init(args->end);
+
+    size_t cnt = 0;
+    size_t dcnt = 0;
+    auto n = next_factor(&fs);
+    auto ln = n;
+    size_t nc = 0;
+    for (; n != 0; n = next_factor(&fs)) {
+        ++cnt;
+        if (n != ln) {
+            fprintf(args->out, "%zu^%zu\n", ln, nc);
+            ++dcnt;
+            ln = n;
+            nc = 1;
+        } else {
+            ++nc;
+        }
+    }
+
+    if (cnt != 0) {
+        fprintf(args->out, "%zu^%zu\n", ln, nc);
+        ++dcnt;
+    }
+
+    fprintf(
+        args->out, "total of %zu factors in %zu distinct primes\n", cnt, dcnt
+    );
+
+    return true;
+}
+
 static bool count(Args *args) {
     switch (args->mode) {
     case MODE_SINGLE:
@@ -130,6 +186,10 @@ static bool count(Args *args) {
         return count_ranged(args);
     case MODE_ESTIMATE:
         return count_estimate(args);
+    case MODE_FACTOR:
+        return count_factors(args);
+    case MODE_AGGREGATE_FACTOR:
+        return count_aggregate_factors(args);
     }
 }
 
@@ -183,6 +243,43 @@ static bool count_estimate(Args *args) {
     return true;
 }
 
+static bool count_factors(Args *args) {
+    auto fs = factors_init(args->end);
+
+    size_t res = 0;
+    for (auto n = next_factor(&fs); n != 0; n = next_factor(&fs)) {
+        ++res;
+    }
+
+    fprintf(args->out, "%zu factors\n", res);
+
+    return true;
+}
+
+static bool count_aggregate_factors(Args *args) {
+    auto fs = factors_init(args->end);
+
+    size_t cnt = 0;
+    size_t dcnt = 0;
+    auto n = next_factor(&fs);
+    auto ln = n;
+    for (; n != 0; n = next_factor(&fs)) {
+        ++cnt;
+        if (n != ln) {
+            ++dcnt;
+            ln = n;
+        }
+    }
+
+    if (cnt != 0) {
+        ++dcnt;
+    }
+
+    fprintf(args->out, "%zu distinct factors\n", dcnt);
+
+    return true;
+}
+
 static bool nth(Args *args) {
     switch (args->mode) {
     case MODE_SINGLE:
@@ -191,6 +288,10 @@ static bool nth(Args *args) {
         return nth_ranged(args);
     case MODE_ESTIMATE:
         return nth_estimate(args);
+    case MODE_FACTOR:
+        return nth_factor(args);
+    case MODE_AGGREGATE_FACTOR:
+        return nth_aggregate_factor(args);
     }
 }
 
@@ -249,4 +350,14 @@ static bool nth_estimate(Args *args) {
         return false;
     }
     return true;
+}
+
+static bool nth_factor(Args *) {
+    err(STR("Nth factor is not valid combination."));
+    return false;
+}
+
+static bool nth_aggregate_factor(Args *) {
+    err(STR("Nth aggregate factor is not valid combination."));
+    return false;
 }

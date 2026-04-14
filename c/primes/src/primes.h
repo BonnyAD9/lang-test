@@ -5,6 +5,11 @@
 
 #include "sieve.h"
 
+typedef struct {
+    size_t num;
+    size_t idx;
+} FactorState;
+
 /// @brief Get fast function for checking all numbers for primeness within the
 /// given range.
 /// @param start Start of the range.
@@ -25,5 +30,14 @@ size_t est_prime_cnt(size_t n);
 /// @param n Index of the estimated prime.
 /// @returns Upper estimate for `n`.
 size_t est_nth_prime(size_t n);
+
+/// @brief Initialize next factor state for calculating prime factors.
+/// @param n Number for which the factors will be calculated.
+FactorState factors_init(size_t n);
+
+/// @brief Calcualtes the next prime factor with the given state.
+/// @param fs The state of the factor calculation.
+/// @returns The next factor. 0 if there is no next factor.
+size_t next_factor(FactorState *fs);
 
 #endif // PRIMES_H_INCLUDED
