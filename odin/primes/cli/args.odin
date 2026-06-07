@@ -15,7 +15,6 @@ Args :: struct {
 
 parse :: proc(args: []string) -> (res: Args, ok: bool) {
 	ok = true
-	res.action = .Is_Prime
 
 	for i := 0; i < len(args); i += 1 {
 		arg := args[i]
