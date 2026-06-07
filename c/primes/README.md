@@ -10,3 +10,4 @@ Capabilities:
 - Get the nth prime.
 - Estimate nth prime.
 - Get primes from range of their indexes. (e.g. first N primes).
+- Get (aggregated) prime factors for the given number.
