@@ -3,17 +3,48 @@ package main
 import "cli"
 import "core:fmt"
 import "core:os"
+import "core:strings"
 import "prime"
 
 main :: proc() {
-	if !start() {
-		fmt.eprintfln("error: Failed to parse arguments.")
+	ok := true
+	{
+		when ODIN_DEBUG {
+			track: mem.Tracking_Allocator
+			mem.tracking_allocator_init(&track, context.allocator)
+			context.allocator = mem.tracking_allocator(&track)
+
+			defer {
+				if len(track.allocation_map) > 0 {
+					fmt.eprintfln(
+						"=== %v allocations not freed: ===",
+						len(track.allocation_map),
+					)
+					for _, entry in track.allocation_map {
+						fmt.eprintfln(
+							"- %v B @ %v",
+							entry.size,
+							entry.location,
+						)
+					}
+				}
+			}
+		}
+
+		if err := start(); err != nil {
+			buf := strings.builder_make()
+			defer strings.builder_destroy(&buf)
+			fmt.eprintfln("error: %s", err_msg(&buf, err))
+			ok = false
+		}
+	}
+	if !ok {
 		os.exit(1)
 	}
 }
 
-start :: proc() -> (ok: bool) {
-	ok = true
+start :: proc() -> (err: Error) {
+	err = nil
 
 	args := cli.parse(os.args[1:]) or_return
 

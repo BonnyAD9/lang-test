@@ -1,6 +1,7 @@
 package cli
 
 import "core:strconv"
+import "core:strings"
 
 Action :: enum {
 	Is_Prime,
@@ -13,8 +14,9 @@ Args :: struct {
 	value:  Maybe(u64),
 }
 
-parse :: proc(args: []string) -> (res: Args, ok: bool) {
-	ok = true
+parse :: proc(args: []string) -> (res: Args, err: Error) {
+	err = nil
+	ok: bool
 
 	for i := 0; i < len(args); i += 1 {
 		arg := args[i]
@@ -27,7 +29,15 @@ parse :: proc(args: []string) -> (res: Args, ok: bool) {
 		case "-i", "--is":
 			res.action = .Is_Prime
 		case:
-			res.value = strconv.parse_u64(arg) or_return
+			if strings.starts_with(arg, "-") {
+				err = Unknown_Argument{arg}
+				return
+			} else if res.value, ok = strconv.parse_u64(arg); !ok {
+				err = Failed_To_Parse_Number {
+					val = arg,
+				}
+				return
+			}
 		}
 	}
 
