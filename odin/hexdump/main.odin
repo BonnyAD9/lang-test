@@ -4,6 +4,7 @@ import "core:fmt"
 import "core:io"
 import "core:os"
 import "core:strings"
+import "printers"
 
 main :: proc() {
 	if err := start(); err != nil {
@@ -31,17 +32,13 @@ start :: proc() -> (err: Error) {
 		}
 		(cnt != 0) or_break
 
-		fmt.printf("%8X  ", pos)
-
-		for b, idx in buf[:cnt] {
-			if idx < 8 {
-				fmt.printf("%2x ", b)
-			} else {
-				fmt.printf(" %2x", b)
-			}
-		}
-
+		printers.number(pos)
+		fmt.print("  ")
+		printers.hex(buf[:cnt])
+		fmt.print("  ")
+		printers.ascii(buf[:cnt])
 		fmt.println()
+
 		pos += auto_cast cnt
 	}
 
