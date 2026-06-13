@@ -10,7 +10,7 @@ hex :: proc(data: []u8) {
 			fmt.printf(" %2x", value)
 		}
 	}
-	for _ in len(data)..<16 {
+	for _ in len(data) ..< 16 {
 		fmt.print("   ")
 	}
 }

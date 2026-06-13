@@ -1,6 +1,5 @@
 package printers
 
-import "core:strings"
 import "core:fmt"
 
 is_ascii_graphic :: proc(chr: u8) -> bool {
@@ -20,7 +19,7 @@ ascii :: proc(data: []u8) {
 
 	fmt.print('|')
 
-	for _ in len(data)..<16 {
+	for _ in len(data) ..< 16 {
 		fmt.print(' ')
 	}
 }
