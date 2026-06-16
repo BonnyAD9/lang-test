@@ -7,11 +7,13 @@ Vec2 :: struct($T: typeid) {
 vec :: proc {
 	vec2_auto,
 	vec2_typed,
+	vec2_arr,
 }
 
 vec2 :: proc {
 	vec2_auto,
 	vec2_typed,
+	vec2_arr,
 }
 
 cas :: proc {
@@ -20,6 +22,10 @@ cas :: proc {
 
 add :: proc {
 	vec2_add,
+}
+
+sub :: proc {
+	vec2_sub,
 }
 
 mul :: proc {
@@ -39,12 +45,20 @@ vec2_typed :: proc($T: typeid, x: T, y: T) -> Vec2(T) {
 	return {{x, y}}
 }
 
+vec2_arr :: proc(d: [2]$T) -> Vec2(T) {
+	return {d}
+}
+
 vec2_cas :: proc($T: typeid, v: Vec2($O)) -> Vec2(T) {
 	return vec(cast(T)v.x, cast(T)v.y)
 }
 
 vec2_add :: proc(a: Vec2($T), b: Vec2(T)) -> Vec2(T) {
 	return vec(a.x + b.x, a.y + b.y)
+}
+
+vec2_sub :: proc(a: Vec2($T), b: Vec2(T)) -> Vec2(T) {
+	return vec(a.x - b.x, a.y - b.y)
 }
 
 vec2_cmul :: proc(a: Vec2($T), b: Vec2(T)) -> Vec2(T) {
